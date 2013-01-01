@@ -1,0 +1,9 @@
+DS1307	KEYWORD1
+time_t	KEYWORD1
+begin	KEYWORD2
+end	KEYWORD2
+read	KEYWORD2
+write	KEYWORD2
+setOutput	KEYWORD2
+setOutputFreq	KEYWORD2
+setOutputLevel	KEYWORD2
