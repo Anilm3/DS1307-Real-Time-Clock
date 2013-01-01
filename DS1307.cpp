@@ -88,9 +88,9 @@ void DS1307::begin()
 	
 	readRegister(DS1307::REG_HOUR, 1, &hour);
 	
-	if ((hour & B01000000) == 0)
+	if ((hour & B01000000) > 0)
 	{
-		hour |= B01000000;
+		hour &= B00111111;
 		writeRegister(DS1307::REG_HOUR, 1, &hour);
 	}
 }
@@ -102,9 +102,9 @@ void DS1307::read(time &data)
 	byte data_buffer[7];
 	readRegister(DS1307::REG_SEC, 7, data_buffer);
 	
-	data.seconds = bcdToDec(data_buffer[0] & B01111111);
+	data.seconds = bcdToDec(data_buffer[0]);
 	data.minutes = bcdToDec(data_buffer[1]);
-	data.hour    = bcdToDec(data_buffer[2] & B00111111);
+	data.hour    = bcdToDec(data_buffer[2]);
 	data.day     = bcdToDec(data_buffer[3]);
 	data.date    = bcdToDec(data_buffer[4]);
 	data.month   = bcdToDec(data_buffer[5]);
@@ -117,7 +117,7 @@ void DS1307::write(time &data)
 	
 	data_buffer[0] = decToBcd((byte)data.seconds);
 	data_buffer[1] = decToBcd((byte)data.minutes);
-	data_buffer[2] = decToBcd((byte)data.hour) | B01000000;
+	data_buffer[2] = decToBcd((byte)data.hour);
 	data_buffer[3] = decToBcd((byte)data.day);
 	data_buffer[4] = decToBcd((byte)data.date);
 	data_buffer[5] = decToBcd((byte)data.month);
