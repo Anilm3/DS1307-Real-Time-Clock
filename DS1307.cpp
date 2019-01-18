@@ -10,17 +10,17 @@
 *********************************************************************************/
 
 #include <DS1307.h>
-#include <Wire.h>"
+#include <Wire.h>
 
 int DS1307::writeRegister(byte reg_addr, int nbytes, byte *buffer)
 {
 	int written_bytes;
-	
+
 	Wire.beginTransmission(DS1307::ADDRESS);
 	Wire.write(reg_addr);
 	written_bytes = Wire.write(buffer, nbytes);
 	Wire.endTransmission();
-	
+
 	return written_bytes;
 }
 
@@ -30,35 +30,35 @@ int DS1307::readRegister(byte reg_addr, int nbytes, byte *buffer)
 
 	Wire.beginTransmission(DS1307::ADDRESS);
 	Wire.write(reg_addr);
-	Wire.endTransmission(); 
-	
+	Wire.endTransmission();
+
 	Wire.requestFrom(DS1307::ADDRESS, nbytes);
 
 	while(Wire.available() && idx < nbytes)
-	{ 
+	{
 		buffer[idx++] = Wire.read();
 	}
-	
+
 	return idx;
 }
 
 byte DS1307::getControl()
 {
 	byte control = 0;
-	
+
 	readRegister(DS1307::REG_CTRL, 1, &control);
-	
+
 	return control;
 }
 
 void DS1307::setControl()
 {
 	byte control = 0;
-	
+
 	control += (outputLevel ? 1 : 0) << 7;
 	control += (output ? 1 : 0) << 4;
 	control += outputFreq;
-	
+
 	writeRegister(DS1307::REG_CTRL, 1, &control);
 }
 
@@ -71,7 +71,7 @@ byte DS1307::decToBcd(byte data)
 {
 	return (data / 10 ) * 16 + (data % 10);
 }
-		
+
 DS1307::DS1307()
 {
 	Wire.begin();
@@ -81,13 +81,13 @@ void DS1307::begin()
 {
 	byte hour;
 	byte control = getControl();
-	
+
 	outputLevel = control & B10000000;
 	output = control & B00010000;
 	outputFreq = (SQW_Freq)(control & B00000011);
-	
+
 	readRegister(DS1307::REG_HOUR, 1, &hour);
-	
+
 	if ((hour & B01000000) > 0)
 	{
 		hour &= B00111111;
@@ -101,7 +101,7 @@ void DS1307::read(time &data)
 {
 	byte data_buffer[7];
 	readRegister(DS1307::REG_SEC, 7, data_buffer);
-	
+
 	data.seconds = bcdToDec(data_buffer[0]);
 	data.minutes = bcdToDec(data_buffer[1]);
 	data.hour    = bcdToDec(data_buffer[2]);
@@ -114,7 +114,7 @@ void DS1307::read(time &data)
 void DS1307::write(time &data)
 {
 	byte data_buffer[7];
-	
+
 	data_buffer[0] = decToBcd((byte)data.seconds);
 	data_buffer[1] = decToBcd((byte)data.minutes);
 	data_buffer[2] = decToBcd((byte)data.hour);
@@ -122,7 +122,7 @@ void DS1307::write(time &data)
 	data_buffer[4] = decToBcd((byte)data.date);
 	data_buffer[5] = decToBcd((byte)data.month);
 	data_buffer[6] = decToBcd((byte)data.year);
-	
+
 	writeRegister(DS1307::REG_SEC, 7, data_buffer);
 }
 
